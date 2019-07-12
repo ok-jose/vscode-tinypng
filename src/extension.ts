@@ -1,8 +1,6 @@
-'use strict';
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
-import tinify from 'tinify';
+"use strict";
+import * as vscode from "vscode";
+import tinify from "tinify";
 
 const compressImage = (file: any) => {
   const statusBarItem = vscode.window.createStatusBarItem(
@@ -54,7 +52,7 @@ const compressImage = (file: any) => {
   });
 };
 
-const validate = (onSuccess:any, onFailure?: any) =>
+const validate = (onSuccess: any, onFailure?: any) =>
   tinify.validate(function(err) {
     if (err) {
       onFailure(err);
@@ -64,48 +62,50 @@ const validate = (onSuccess:any, onFailure?: any) =>
   });
 
 export function activate(context: vscode.ExtensionContext) {
-    // Get API Key
-    tinify.key = vscode.workspace.getConfiguration("tinypng").get("apiKey") || 'a';
-  
-    // Validate user
-    validate(console.log("Validation successfull!"), (e: any) => {
-      console.error(e.message);
-      vscode.window.showInformationMessage(
-        "TinyPNG: API validation failed. Be sure that you filled out tinypng.apiKey setting already."
-      );
-    });
-  
-    let disposableCompressFile = vscode.commands.registerCommand(
-      "extension.compressFile",
-      compressImage
+  // Get API Key
+  tinify.key = vscode.workspace.getConfiguration("tinypng").get("apiKey") || "";
+  // Validate user
+  validate(console.log("Validation successful!"), (e: any) => {
+    console.error(e.message);
+    vscode.window.showInformationMessage(
+      "TinyPNG: API validation failed. Be sure that you filled out tinypng.apiKey setting already."
     );
-  
-    context.subscriptions.push(disposableCompressFile);
-  
-    let disposableCompressFolder = vscode.commands.registerCommand(
-      "extension.compressFolder",
-      function(folder) {
-        vscode.workspace
-          .findFiles(
-            new vscode.RelativePattern(folder.path, `**/*.{png,jpg,jpeg}`)
-          )
-          .then(files => files.forEach(compressImage));
-      }
-    );
-  
-    context.subscriptions.push(disposableCompressFolder);
-  
-    let disposableCompressionCount = vscode.commands.registerCommand(
-      "extension.getCompressionCount",
-      () =>
-        afterValidation(() =>
-          vscode.window.showInformationMessage(
-            `TinyPNG: You already used ${tinify.compressionCount} compression(s) this month.`
-          )
+  });
+
+  let disposableCompressFile = vscode.commands.registerCommand(
+    "extension.compressFile",
+    compressImage
+    // () => {
+    //   vscode.window.showInformationMessage("compressFile...");
+    // }
+  );
+  context.subscriptions.push(disposableCompressFile);
+
+  let disposableCompressFolder = vscode.commands.registerCommand(
+    "extension.compressFolder",
+    function(folder) {
+      vscode.workspace
+        .findFiles(
+          new vscode.RelativePattern(folder.path, `**/*.{png,jpg,jpeg}`)
         )
-    );
-    context.subscriptions.push(disposableCompressionCount);
-  }
-const afterValidation = (callback: any) => validate(callback);
-export function deactivate() {
+        .then(files => files.forEach(compressImage));
+    }
+  );
+
+  context.subscriptions.push(disposableCompressFolder);
+
+  let disposableCompressionCount = vscode.commands.registerCommand(
+    "extension.getCompressionCount",
+    () =>
+      afterValidation(() =>
+        vscode.window.showInformationMessage(
+          `TinyPNG: You already used ${
+            tinify.compressionCount
+          } compression(s) this month.`
+        )
+      )
+  );
+  context.subscriptions.push(disposableCompressionCount);
 }
+const afterValidation = (callback: any) => validate(callback);
+export function deactivate() {}

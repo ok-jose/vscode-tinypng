@@ -1,27 +1,79 @@
-'use strict';
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-function activate(context) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "jose-test" is now active!');
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.sayHello', () => {
-        // The code you place here will be executed every time your command is executed
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World!');
+const tinify_1 = require("tinify");
+const compressImage = (file) => {
+    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    statusBarItem.text = `Compressing file ${file.fsPath}...`;
+    statusBarItem.show();
+    return tinify_1.default.fromFile(file.fsPath).toFile(file.fsPath, error => {
+        statusBarItem.hide();
+        if (error) {
+            if (error instanceof tinify_1.default.AccountError) {
+                // Verify your API key and account limit.
+                console.error("Authentification failed. Have you set the API Key?");
+                vscode.window.showErrorMessage("Authentification failed. Have you set the API Key?");
+            }
+            else if (error instanceof tinify_1.default.ClientError) {
+                // Check your source image and request options.
+                console.error("Ooops, there is an error. Please check your source image and settings.");
+                vscode.window.showErrorMessage("Ooops, there is an error. Please check your source image and settings.");
+            }
+            else if (error instanceof tinify_1.default.ServerError) {
+                // Temporary issue with the Tinify API.
+                console.error("TinyPNG API is currently not available.");
+                vscode.window.showErrorMessage("TinyPNG API is currently not available.");
+            }
+            else if (error instanceof tinify_1.default.ConnectionError) {
+                // A network connection error occurred.
+                console.error("Network issue occurred. Please check your internet connectivity.");
+                vscode.window.showErrorMessage("Network issue occurred. Please check your internet connectivity.");
+            }
+            else {
+                // Something else went wrong, unrelated to the Tinify API.
+                console.error(error.message);
+                vscode.window.showErrorMessage(error.message);
+            }
+        }
+        else {
+            vscode.window.showInformationMessage(`Image ${file.fsPath} successfully compressed!`);
+        }
     });
-    context.subscriptions.push(disposable);
+};
+const validate = (onSuccess, onFailure) => tinify_1.default.validate(function (err) {
+    if (err) {
+        onFailure(err);
+    }
+    else {
+        onSuccess();
+    }
+});
+function activate(context) {
+    // Get API Key
+    tinify_1.default.key = vscode.workspace.getConfiguration("tinypng").get("apiKey") || "";
+    debugger;
+    // Validate user
+    validate(console.log("Validation successful!"), (e) => {
+        console.error(e.message);
+        vscode.window.showInformationMessage("TinyPNG: API validation failed. Be sure that you filled out tinypng.apiKey setting already.");
+    });
+    let disposableCompressFile = vscode.commands.registerCommand("extension.compressFile", compressImage
+    // () => {
+    //   vscode.window.showInformationMessage("compressFile...");
+    // }
+    );
+    context.subscriptions.push(disposableCompressFile);
+    let disposableCompressFolder = vscode.commands.registerCommand("extension.compressFolder", function (folder) {
+        vscode.workspace
+            .findFiles(new vscode.RelativePattern(folder.path, `**/*.{png,jpg,jpeg}`))
+            .then(files => files.forEach(compressImage));
+    });
+    context.subscriptions.push(disposableCompressFolder);
+    let disposableCompressionCount = vscode.commands.registerCommand("extension.getCompressionCount", () => afterValidation(() => vscode.window.showInformationMessage(`TinyPNG: You already used ${tinify_1.default.compressionCount} compression(s) this month.`)));
+    context.subscriptions.push(disposableCompressionCount);
 }
 exports.activate = activate;
-// this method is called when your extension is deactivated
-function deactivate() {
-}
+const afterValidation = (callback) => validate(callback);
+function deactivate() { }
 exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map

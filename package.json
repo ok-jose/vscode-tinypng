@@ -1,41 +1,102 @@
 {
-    "name": "vscode-tinypng",
-    "displayName": "vscode-tinypng",
-    "description": "use tinypng in vscode extension",
-    "version": "0.0.1",
-    "engines": {
-        "vscode": "^1.30.0"
+  "name": "vscode-tinypng",
+  "displayName": "TinyPNG",
+  "description": "use tinypng in vscode extension",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.30.0"
+  },
+  "publisher": "echolee",
+  "categories": [
+    "Other"
+  ],
+  "icon": "images/icon.png",
+  "activationEvents": [
+    "onCommand:extension.compressFile",
+    "onCommand:extension.compressFolder",
+    "onCommand:extension.getCompressionCount"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "configuration": {
+      "title": "TinyPNG Configuration",
+      "properties": {
+        "tinypng.apiKey": {
+          "type": "string",
+          "description": "Your TinyPNG API Key"
+        }
+      }
     },
-    "categories": [
-        "Other"
+    "commands": [
+      {
+        "command": "extension.compressFile",
+        "title": "TinyPNG: Compress",
+        "category": "TinyPNG"
+      },
+      {
+        "command": "extension.compressFolder",
+        "title": "TinyPNG: Compress images in here",
+        "category": "TinyPNG"
+      },
+      {
+        "command": "extension.getCompressionCount",
+        "title": "Compression Count",
+        "category": "TinyPNG"
+      }
     ],
-    "activationEvents": [
-        "onCommand:extension.sayHello"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "commands": [
-            {
-                "command": "extension.sayHello",
-                "title": "Hello World"
-            }
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "extension.getCompressionCount"
+        },
+        {
+          "command": "extension.compressFile",
+          "when": "False"
+        },
+        {
+          "command": "extension.compressFolder",
+          "when": "False"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "resourceLangId == tinypng_file",
+          "command": "extension.compressFile",
+          "group": "1_modification"
+        },
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "extension.compressFolder",
+          "group": "1_modification"
+        }
+      ]
+    },
+    "languages": [
+      {
+        "id": "tinypng_file",
+        "extensions": [
+          ".png",
+          ".jpg",
+          ".jpeg"
         ]
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "typescript": "^3.1.4",
-        "vscode": "^1.1.25",
-        "tslint": "^5.8.0",
-        "@types/node": "^8.10.25",
-        "@types/mocha": "^2.2.42"
-    },
-    "dependencies": {
-        "tinify": "^1.6.0-beta.2"
-    }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "typescript": "^3.1.4",
+    "vscode": "^1.1.25",
+    "tslint": "^5.8.0",
+    "@types/node": "^8.10.25",
+    "@types/mocha": "^2.2.42"
+  },
+  "dependencies": {
+    "tinify": "^1.6.0-beta.2"
+  }
 }
