@@ -51,7 +51,6 @@ const validate = (onSuccess, onFailure) => tinify_1.default.validate(function (e
 function activate(context) {
     // Get API Key
     tinify_1.default.key = vscode.workspace.getConfiguration("tinypng").get("apiKey") || "";
-    debugger;
     // Validate user
     validate(console.log("Validation successful!"), (e) => {
         console.error(e.message);
