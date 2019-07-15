@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const vscode = require("vscode");
 const tinify_1 = require("tinify");
 const compressImage = (file) => {
+    console.log(vscode.env.language, 'language');
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
     statusBarItem.text = `Compressing file ${file.fsPath}...`;
     statusBarItem.show();

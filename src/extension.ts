@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import tinify from "tinify";
 
 const compressImage = (file: any) => {
+  console.log(vscode.env.language, 'language');
   const statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
   );
