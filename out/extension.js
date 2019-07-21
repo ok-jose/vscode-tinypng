@@ -2,33 +2,36 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const vscode = require("vscode");
 const tinify_1 = require("tinify");
+const message_1 = require("./message");
+const env = vscode.env.language;
+const env_message = message_1.message[env];
 const compressImage = (file) => {
-    console.log(vscode.env.language, 'language');
+    console.log(vscode.env.language, "language");
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-    statusBarItem.text = `Compressing file ${file.fsPath}...`;
+    statusBarItem.text = `${env_message.compressing_tip} ${file.fsPath}...`;
     statusBarItem.show();
     return tinify_1.default.fromFile(file.fsPath).toFile(file.fsPath, error => {
         statusBarItem.hide();
         if (error) {
             if (error instanceof tinify_1.default.AccountError) {
                 // Verify your API key and account limit.
-                console.error("Authentification failed. Have you set the API Key?");
-                vscode.window.showErrorMessage("Authentification failed. Have you set the API Key?");
+                console.error(env_message.authentification_tip);
+                vscode.window.showErrorMessage(env_message.authentification_tip);
             }
             else if (error instanceof tinify_1.default.ClientError) {
                 // Check your source image and request options.
-                console.error("Ooops, there is an error. Please check your source image and settings.");
-                vscode.window.showErrorMessage("Ooops, there is an error. Please check your source image and settings.");
+                console.error(env_message.error_tip);
+                vscode.window.showErrorMessage(env_message.error_tip);
             }
             else if (error instanceof tinify_1.default.ServerError) {
                 // Temporary issue with the Tinify API.
-                console.error("TinyPNG API is currently not available.");
-                vscode.window.showErrorMessage("TinyPNG API is currently not available.");
+                console.error(env_message.api_tip);
+                vscode.window.showErrorMessage(env_message.api_tip);
             }
             else if (error instanceof tinify_1.default.ConnectionError) {
                 // A network connection error occurred.
-                console.error("Network issue occurred. Please check your internet connectivity.");
-                vscode.window.showErrorMessage("Network issue occurred. Please check your internet connectivity.");
+                console.error(env_message.network_error_tip);
+                vscode.window.showErrorMessage(env_message.network_error_tip);
             }
             else {
                 // Something else went wrong, unrelated to the Tinify API.
@@ -37,7 +40,7 @@ const compressImage = (file) => {
             }
         }
         else {
-            vscode.window.showInformationMessage(`Image ${file.fsPath} successfully compressed!`);
+            vscode.window.showInformationMessage(env_message.success_tip);
         }
     });
 };
