@@ -3,11 +3,9 @@ vsc-extension-quickstart.md
 .vscode/**
 .vscode-test/**
 out/test/**
-src/test
 .gitignore
 **/tsconfig.json
 **/tslint.json
 **/*.map
-**/*.ts
 *.vsix
 .vscodeignore
